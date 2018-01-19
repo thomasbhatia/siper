@@ -1,3 +1,22 @@
+Demo
+=====
+
+0) Start netcat
+.. code:: nc -kluvw 0  8000
+
+1) Register caller
+.. code:: tanodb:registration(123,{127,0,0,1}).
+
+2) Register callee
+.. code:: tanodb:registration(321,{127,0,0,1}).
+
+3) Media transfer via UDP from Node 1
+.. code:: tanodb:media(123,321,"connection1").
+
+4) Media transfer via UDP from Node 2
+.. code:: tanodb:media(123,321,"connection1").
+
+
 tanodb
 ======
 

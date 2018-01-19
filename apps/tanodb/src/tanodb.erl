@@ -1,7 +1,7 @@
 -module(tanodb).
 -include_lib("riak_core/include/riak_core_vnode.hrl").
 
--export([ping/0, get/1, delete/1, put/2, keys/1]).
+-export([ping/0, get/1, delete/1, put/2, keys/1, registration/2, media/3]).
 
 -ignore_xref([ping/0, get/1, delete/1, put/2]).
 
@@ -37,6 +37,13 @@ keys(Bucket) ->
     tanodb_metrics:core_keys(),
     Timeout = 5000,
     tanodb_coverage_fsm:start({keys, Bucket}, Timeout).
+
+registration(Number, IP) ->
+    tanodb:put({number,Number}, IP).
+
+media(SRC, DST, Payload) ->
+    ReqID = make_ref(),
+    tanodb_call_fsm:call({number,SRC}, {number, DST}, Payload, ReqID).
 
 % private functions
 

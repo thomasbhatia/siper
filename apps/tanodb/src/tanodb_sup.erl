@@ -32,4 +32,8 @@ init(_Args) ->
                  {tanodb_write_fsm_sup, start_link, []},
                  permanent, infinity, supervisor, [tanodb_write_fsm_sup]},
 
-    {ok, {{one_for_one, 5, 10}, [VMaster, CoverageFSMs, WriteFSMs]}}.
+    CallFSMs = {tanodb_call_fsm_sup,
+                 {tanodb_call_fsm_sup, start_link, []},
+                 permanent, infinity, supervisor, [tanodb_call_fsm_sup]},
+
+    {ok, {{one_for_one, 5, 10}, [VMaster, CoverageFSMs, WriteFSMs, CallFSMs]}}.

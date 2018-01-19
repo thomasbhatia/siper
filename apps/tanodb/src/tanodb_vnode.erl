@@ -50,7 +50,7 @@ handle_command({get, Key}, _Sender,
         [] ->
             {reply, {not_found, Partition, Key}, State};
         [Value] ->
-            {reply, {found, Partition, {Key, Value}}, State}
+            {reply, {found, Partition, Value}, State}
     end;
 handle_command({delete, ReqId, Key}, _Sender,
                State=#state{table_name=TableName, partition=Partition}) ->
@@ -60,6 +60,22 @@ handle_command({delete, ReqId, Key}, _Sender,
         [Value] ->
             true = ets:delete(TableName, Key),
             {reply, {ReqId, {found, Partition, {Key, Value}}}, State}
+    end;
+
+handle_command({call, {number, Caller}, {number, Callee}, Payload, ReqID}, Sender,
+                State=#state{table_name=TableName}) ->
+    case ets:lookup(TableName, {number, Callee}) of
+        [] ->
+            {reply, {try_again, ReqID}, State};
+        [{DST, IP}] ->
+            spawn(fun() -> 
+                {ok,Socket} = gen_udp:open(7000),
+                ok = gen_udp:send(Socket, IP, 8000, ["Caller: ", integer_to_list(Caller), "\n",
+                                                     "Calling: ", integer_to_list(Callee), "\n",
+                                                     "Payload: ", Payload, "\n"]),
+                gen_udp:close(Socket)
+            end),
+            {reply, ok, State}
     end;
 handle_command(Message, _Sender, State) ->
     lager:warning("unhandled_command ~p", [Message]),
